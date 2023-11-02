@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.springboot.DTOs.ProductRecordDTO;
-import com.example.springboot.models.ProductModel;
+import com.example.springboot.models.Product;
 import com.example.springboot.repositories.ProductRepository;
 
 import jakarta.validation.Valid;
@@ -26,13 +26,14 @@ public class ProductController {
     ProductRepository productRepository;
 
     @PostMapping("/products")
-    public ResponseEntity<ProductModel> saveProduct(@RequestBody @Valid ProductRecordDTO productRecordDTO){
+    public ResponseEntity<Product> saveProduct(@RequestBody @Valid ProductRecordDTO productRecordDTO){
         
-        var productModel = new ProductModel();
+        var productModel = new Product();
         BeanUtils.copyProperties(productRecordDTO, productModel);
         return ResponseEntity.status(HttpStatus.CREATED).body(productRepository.save(productModel));
         
     }
 
-
 }
+
+
