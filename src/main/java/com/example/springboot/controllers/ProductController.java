@@ -23,7 +23,8 @@ import com.example.springboot.repositories.ProductRepository;
 import jakarta.validation.Valid;
 
 
-
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 
 @RestController
@@ -48,7 +49,16 @@ public class ProductController {
     @GetMapping("/products")
     public ResponseEntity<List<Product>> getAllProducts(){
         //return ResponseEntity.status(HttpStatus.OK).body(productRepository.findAll());
-        return ResponseEntity.ok(productRepository.findAll());
+        List<Product> productList = productRepository.findAll();
+        
+        if(productList.size()>0){
+            for(Product product : productList){
+                UUID id = product.getProductID();
+                product.add(linkTo(methodOn(ProductController.class).getProductByID(id)).withSelfRel());
+            }
+        }
+
+        return ResponseEntity.ok(productList);
     }
 
 
@@ -59,6 +69,7 @@ public class ProductController {
         
         Optional<Product> product = productRepository.findById(id);
         if(product.isPresent()){ 
+            product.get().add(linkTo(methodOn(ProductController.class).getAllProducts()).withRel("Product list"));
             return ResponseEntity.ok(product);
         } 
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found!");
